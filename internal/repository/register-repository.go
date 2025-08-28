@@ -12,5 +12,5 @@ type RegisterRepository struct {
 }
 
 func (r *RegisterRepository) InsertNewUser(ctx context.Context, user *models.User) error {
-	return r.DB.Create(user).Error
+	return r.DB.WithContext(ctx).Create(user).Error
 }
