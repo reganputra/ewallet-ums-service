@@ -9,7 +9,7 @@ import (
 )
 
 type RegisterService struct {
-	RegisterRepo interfaces.IRegisterRepository
+	UserRepo interfaces.IUserRepository
 }
 
 func (s *RegisterService) Register(ctx context.Context, req models.User) (interface{}, error) {
@@ -19,12 +19,13 @@ func (s *RegisterService) Register(ctx context.Context, req models.User) (interf
 		return nil, err
 	}
 
-	err = s.RegisterRepo.InsertNewUser(ctx, &req)
+	req.Password = string(hashPwd)
+
+	err = s.UserRepo.InsertNewUser(ctx, &req)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Password = string(hashPwd)
 	resp := req
 	resp.Password = ""
 	return resp, nil
