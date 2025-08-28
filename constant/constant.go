@@ -6,4 +6,5 @@ const (
 	ErrFailedHashPassword = "Failed to hash password"
 	Success               = "Success"
 	ErrFailedRegister     = "Failed to register user"
+	ErrLoginFailed        = "Login failed"
 )
