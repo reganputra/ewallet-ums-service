@@ -14,7 +14,7 @@ type LoginHandler struct {
 	LoginService interfaces.ILoginService
 }
 
-func (h *LoginHandler) Login(c *gin.Context) {
+func (api *LoginHandler) Login(c *gin.Context) {
 	var (
 		log  = helpers.Logger
 		req  models.LoginRequest
@@ -32,7 +32,7 @@ func (h *LoginHandler) Login(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.LoginService.Login(c.Request.Context(), req)
+	resp, err := api.LoginService.Login(c.Request.Context(), req)
 	if err != nil {
 		log.Error("Login failed", err)
 		helpers.SendResponseHTTP(c, http.StatusUnauthorized, constant.ErrLoginFailed, nil)
