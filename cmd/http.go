@@ -21,7 +21,9 @@ func ServerHttp() {
 	userV1 := r.Group("/users/v1")
 	userV1.POST("/register", deps.RegisterAPI.Register)
 	userV1.POST("/login", deps.LoginAPI.Login)
-	userV1.DELETE("/logout", deps.LogoutAPI.Logout)
+
+	userV1.DELETE("/logout", deps.MiddlewareValidateAuth, deps.LogoutAPI.Logout)
+	userV1.PUT("/refresh-token", deps.MiddlewareRefreshToken, deps.RefreshTokenAPI.RefreshToken)
 
 	err := r.Run(":" + helpers.GetEnv("PORT", "8080"))
 	if err != nil {
@@ -35,16 +37,18 @@ type Dependency struct {
 	HealthCheckRepo repository.HealthCheckRepo
 
 	// Services
-	LoginService    service.LoginService
-	RegisterService service.RegisterService
-	HealthCheckSvc  service.HealthCheck
-	LogoutService   service.LogoutService
+	LoginService        service.LoginService
+	RegisterService     service.RegisterService
+	HealthCheckSvc      service.HealthCheck
+	LogoutService       service.LogoutService
+	RefreshTokenService service.RefreshTokenService
 
 	// API Handlers
-	LoginAPI       api.LoginHandler
-	RegisterAPI    api.RegisterHandler
-	HealthCheckAPI api.HealthCheck
-	LogoutAPI      api.LogoutHandler
+	LoginAPI        api.LoginHandler
+	RegisterAPI     api.RegisterHandler
+	HealthCheckAPI  api.HealthCheck
+	LogoutAPI       api.LogoutHandler
+	RefreshTokenAPI api.RefreshTokenHandler
 }
 
 func InitializeDependencies() *Dependency {
@@ -67,6 +71,9 @@ func InitializeDependencies() *Dependency {
 	deps.LogoutService = service.LogoutService{
 		UserRepo: &deps.UserRepo,
 	}
+	deps.RefreshTokenService = service.RefreshTokenService{
+		UserRepo: &deps.UserRepo,
+	}
 
 	// Initialize API Handlers
 	deps.HealthCheckAPI = api.HealthCheck{
@@ -80,6 +87,9 @@ func InitializeDependencies() *Dependency {
 	}
 	deps.LogoutAPI = api.LogoutHandler{
 		LogoutService: &deps.LogoutService,
+	}
+	deps.RefreshTokenAPI = api.RefreshTokenHandler{
+		RefreshTokenSvc: &deps.RefreshTokenService,
 	}
 
 	return deps

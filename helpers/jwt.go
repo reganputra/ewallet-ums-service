@@ -13,6 +13,7 @@ type ClaimToken struct {
 	Username string `json:"username"`
 	FullName string `json:"full_name"`
 	UserID   int    `json:"user_id"`
+	Email    string `json:"email"`
 	jwt.RegisteredClaims
 }
 
@@ -21,7 +22,7 @@ var MapTokenTypes = map[string]time.Duration{
 	"refresh": time.Hour * 24,
 }
 
-func GenerateToken(ctx context.Context, userId int, username, fullName, tokenType string, now time.Time) (string, error) {
+func GenerateToken(ctx context.Context, userId int, username, email, fullName, tokenType string, now time.Time) (string, error) {
 
 	secret := []byte(GetEnv("APP_SECRET", ""))
 
@@ -29,6 +30,7 @@ func GenerateToken(ctx context.Context, userId int, username, fullName, tokenTyp
 		UserID:   userId,
 		Username: username,
 		FullName: fullName,
+		Email:    email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    GetEnv("APP_NAME", ""),
 			IssuedAt:  jwt.NewNumericDate(now),
