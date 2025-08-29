@@ -7,4 +7,5 @@ const (
 	Success               = "Success"
 	ErrFailedRegister     = "Failed to register user"
 	ErrLoginFailed        = "Login failed"
+	ErrLogoutFailed       = "Logout failed"
 )
