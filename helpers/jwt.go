@@ -10,10 +10,11 @@ import (
 )
 
 type ClaimToken struct {
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
-	UserID   int    `json:"user_id"`
-	Email    string `json:"email"`
+	Username  string `json:"username"`
+	FullName  string `json:"full_name"`
+	UserID    int    `json:"user_id"`
+	Email     string `json:"email"`
+	TokenType string `json:"token_type"`
 	jwt.RegisteredClaims
 }
 
@@ -27,10 +28,11 @@ func GenerateToken(ctx context.Context, userId int, username, email, fullName, t
 	secret := []byte(GetEnv("APP_SECRET", ""))
 
 	claims := ClaimToken{
-		UserID:   userId,
-		Username: username,
-		FullName: fullName,
-		Email:    email,
+		UserID:    userId,
+		Username:  username,
+		FullName:  fullName,
+		Email:     email,
+		TokenType: tokenType,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    GetEnv("APP_NAME", ""),
 			IssuedAt:  jwt.NewNumericDate(now),
@@ -63,6 +65,16 @@ func ValidateToken(ctx context.Context, token string) (*ClaimToken, error) {
 	}
 
 	if claims, ok := parsedToken.Claims.(*ClaimToken); ok && parsedToken.Valid {
+		// Explicit expiration check
+		if claims.ExpiresAt != nil && claims.ExpiresAt.Before(time.Now()) {
+			return nil, errors.New("token has expired")
+		}
+
+		// Validate token type
+		if claims.TokenType != "access" && claims.TokenType != "refresh" {
+			return nil, errors.New("invalid token type")
+		}
+
 		return claims, nil
 	}
 

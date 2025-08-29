@@ -37,18 +37,20 @@ type Dependency struct {
 	HealthCheckRepo repository.HealthCheckRepo
 
 	// Services
-	LoginService        service.LoginService
-	RegisterService     service.RegisterService
-	HealthCheckSvc      service.HealthCheck
-	LogoutService       service.LogoutService
-	RefreshTokenService service.RefreshTokenService
+	LoginService           service.LoginService
+	RegisterService        service.RegisterService
+	HealthCheckSvc         service.HealthCheck
+	LogoutService          service.LogoutService
+	RefreshTokenService    service.RefreshTokenService
+	TokenValidationService service.TokenValidationService
 
 	// API Handlers
-	LoginAPI        api.LoginHandler
-	RegisterAPI     api.RegisterHandler
-	HealthCheckAPI  api.HealthCheck
-	LogoutAPI       api.LogoutHandler
-	RefreshTokenAPI api.RefreshTokenHandler
+	LoginAPI           api.LoginHandler
+	RegisterAPI        api.RegisterHandler
+	HealthCheckAPI     api.HealthCheck
+	LogoutAPI          api.LogoutHandler
+	RefreshTokenAPI    api.RefreshTokenHandler
+	TokenValidationAPI api.TokenValidationHandler
 }
 
 func InitializeDependencies() *Dependency {
@@ -74,6 +76,9 @@ func InitializeDependencies() *Dependency {
 	deps.RefreshTokenService = service.RefreshTokenService{
 		UserRepo: &deps.UserRepo,
 	}
+	deps.TokenValidationService = service.TokenValidationService{
+		UserRepo: &deps.UserRepo,
+	}
 
 	// Initialize API Handlers
 	deps.HealthCheckAPI = api.HealthCheck{
@@ -90,6 +95,9 @@ func InitializeDependencies() *Dependency {
 	}
 	deps.RefreshTokenAPI = api.RefreshTokenHandler{
 		RefreshTokenSvc: &deps.RefreshTokenService,
+	}
+	deps.TokenValidationAPI = api.TokenValidationHandler{
+		TokenValidationSvc: &deps.TokenValidationService,
 	}
 
 	return deps
