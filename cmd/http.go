@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"ewallet-ums/external"
 	"ewallet-ums/helpers"
 	"ewallet-ums/internal/api"
 	"ewallet-ums/internal/interfaces"
@@ -50,7 +51,7 @@ type Dependency struct {
 	LogoutAPI       interfaces.ILogoutHandler
 	RefreshTokenAPI interfaces.IRefreshTokenHandler
 
-	TokenValidationAPI api.TokenValidationHandler
+	TokenValidationAPI *api.TokenValidationHandler
 }
 
 func InitializeDependencies() Dependency {
@@ -59,8 +60,11 @@ func InitializeDependencies() Dependency {
 		DB: helpers.DB,
 	}
 
+	extWallet := &external.ExtWallet{}
+
 	registerSvc := &service.RegisterService{
-		UserRepo: userRepo,
+		UserRepo:       userRepo,
+		ExternalWallet: extWallet,
 	}
 	registerApi := &api.RegisterHandler{
 		RegisterService: registerSvc,
@@ -90,7 +94,7 @@ func InitializeDependencies() Dependency {
 	tokenValidationSvc := &service.TokenValidationService{
 		UserRepo: userRepo,
 	}
-	tokenValidationApi := api.TokenValidationHandler{
+	tokenValidationApi := &api.TokenValidationHandler{
 		TokenValidationSvc: tokenValidationSvc,
 	}
 
