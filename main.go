@@ -14,10 +14,9 @@ func main() {
 	// load database
 	helpers.SetupMySql()
 
-	// start http server
-	cmd.ServerHttp()
-
 	// start grpc server
 	go cmd.ServerGRPC()
 
+	// start http server
+	cmd.ServerHttp()
 }

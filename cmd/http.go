@@ -3,6 +3,7 @@ package cmd
 import (
 	"ewallet-ums/helpers"
 	"ewallet-ums/internal/api"
+	"ewallet-ums/internal/interfaces"
 	"ewallet-ums/internal/repository"
 	"ewallet-ums/internal/service"
 	"log"
@@ -12,11 +13,19 @@ import (
 
 func ServerHttp() {
 
+	healthCheckRepo := repository.NewHealthCheckRepo()
+	healthCheckSvc := &service.HealthCheck{
+		HealthCheckRepository: healthCheckRepo,
+	}
+	healthCheckApi := api.HealthCheck{
+		HealthCheckService: healthCheckSvc,
+	}
+
 	// Initialize all dependencies
 	deps := InitializeDependencies()
 
 	r := gin.Default()
-	r.GET("/health", deps.HealthCheckAPI.HealthCheckHandler)
+	r.GET("/health", healthCheckApi.HealthCheckHandler)
 
 	userV1 := r.Group("/users/v1")
 	userV1.POST("/register", deps.RegisterAPI.Register)
@@ -33,72 +42,64 @@ func ServerHttp() {
 
 type Dependency struct {
 	// Repositories
-	UserRepo        repository.UserRepository
-	HealthCheckRepo repository.HealthCheckRepo
+	UserRepository interfaces.IUserRepository
 
-	// Services
-	LoginService           service.LoginService
-	RegisterService        service.RegisterService
-	HealthCheckSvc         service.HealthCheck
-	LogoutService          service.LogoutService
-	RefreshTokenService    service.RefreshTokenService
-	TokenValidationService service.TokenValidationService
+	// Api Handler
+	RegisterAPI     interfaces.IRegisterHandler
+	LoginAPI        interfaces.ILoginHandler
+	LogoutAPI       interfaces.ILogoutHandler
+	RefreshTokenAPI interfaces.IRefreshTokenHandler
 
-	// API Handlers
-	LoginAPI           api.LoginHandler
-	RegisterAPI        api.RegisterHandler
-	HealthCheckAPI     api.HealthCheck
-	LogoutAPI          api.LogoutHandler
-	RefreshTokenAPI    api.RefreshTokenHandler
 	TokenValidationAPI api.TokenValidationHandler
 }
 
-func InitializeDependencies() *Dependency {
-	deps := &Dependency{}
+func InitializeDependencies() Dependency {
 
-	// Initialize Repositories
-	deps.HealthCheckRepo = *repository.NewHealthCheckRepo()
-	deps.UserRepo = repository.UserRepository{DB: helpers.DB}
-
-	// Initialize Services
-	deps.HealthCheckSvc = service.HealthCheck{
-		HealthCheckRepository: &deps.HealthCheckRepo,
-	}
-	deps.RegisterService = service.RegisterService{
-		UserRepo: &deps.UserRepo,
-	}
-	deps.LoginService = service.LoginService{
-		UserRepo: &deps.UserRepo,
-	}
-	deps.LogoutService = service.LogoutService{
-		UserRepo: &deps.UserRepo,
-	}
-	deps.RefreshTokenService = service.RefreshTokenService{
-		UserRepo: &deps.UserRepo,
-	}
-	deps.TokenValidationService = service.TokenValidationService{
-		UserRepo: &deps.UserRepo,
+	userRepo := &repository.UserRepository{
+		DB: helpers.DB,
 	}
 
-	// Initialize API Handlers
-	deps.HealthCheckAPI = api.HealthCheck{
-		HealthCheckService: &deps.HealthCheckSvc,
+	registerSvc := &service.RegisterService{
+		UserRepo: userRepo,
 	}
-	deps.RegisterAPI = api.RegisterHandler{
-		RegisterService: &deps.RegisterService,
-	}
-	deps.LoginAPI = api.LoginHandler{
-		LoginService: &deps.LoginService,
-	}
-	deps.LogoutAPI = api.LogoutHandler{
-		LogoutService: &deps.LogoutService,
-	}
-	deps.RefreshTokenAPI = api.RefreshTokenHandler{
-		RefreshTokenSvc: &deps.RefreshTokenService,
-	}
-	deps.TokenValidationAPI = api.TokenValidationHandler{
-		TokenValidationSvc: &deps.TokenValidationService,
+	registerApi := &api.RegisterHandler{
+		RegisterService: registerSvc,
 	}
 
-	return deps
+	loginSvc := &service.LoginService{
+		UserRepo: userRepo,
+	}
+	loginApi := &api.LoginHandler{
+		LoginService: loginSvc,
+	}
+
+	logoutSvc := &service.LogoutService{
+		UserRepo: userRepo,
+	}
+	logoutApi := &api.LogoutHandler{
+		LogoutService: logoutSvc,
+	}
+
+	refreshTokenSvc := &service.RefreshTokenService{
+		UserRepo: userRepo,
+	}
+	refreshTokenApi := &api.RefreshTokenHandler{
+		RefreshTokenSvc: refreshTokenSvc,
+	}
+
+	tokenValidationSvc := &service.TokenValidationService{
+		UserRepo: userRepo,
+	}
+	tokenValidationApi := api.TokenValidationHandler{
+		TokenValidationSvc: tokenValidationSvc,
+	}
+
+	return Dependency{
+		UserRepository:     userRepo,
+		RegisterAPI:        registerApi,
+		LoginAPI:           loginApi,
+		LogoutAPI:          logoutApi,
+		RefreshTokenAPI:    refreshTokenApi,
+		TokenValidationAPI: tokenValidationApi,
+	}
 }

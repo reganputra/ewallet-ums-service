@@ -19,7 +19,7 @@ func (d *Dependency) MiddlewareValidateAuth(ctx *gin.Context) {
 		return
 	}
 
-	_, err := d.UserRepo.GetUserSessionByToken(ctx.Request.Context(), auth)
+	_, err := d.UserRepository.GetUserSessionByToken(ctx.Request.Context(), auth)
 	if err != nil {
 		log.Println("failed to get user session on DB: ", err)
 		helpers.SendResponseHTTP(ctx, http.StatusUnauthorized, "unauthorized", nil)
@@ -57,7 +57,7 @@ func (d *Dependency) MiddlewareRefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	_, err := d.UserRepo.GetUserSessionByRefreshToken(ctx.Request.Context(), auth)
+	_, err := d.UserRepository.GetUserSessionByRefreshToken(ctx.Request.Context(), auth)
 	if err != nil {
 		log.Println("failed to get user session on DB: ", err)
 		helpers.SendResponseHTTP(ctx, http.StatusUnauthorized, "unauthorized", nil)

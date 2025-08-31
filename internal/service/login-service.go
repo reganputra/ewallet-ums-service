@@ -6,6 +6,7 @@ import (
 	"ewallet-ums/helpers"
 	"ewallet-ums/internal/interfaces"
 	"ewallet-ums/internal/models"
+	"log"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -24,6 +25,10 @@ func (s *LoginService) Login(ctx context.Context, req models.LoginRequest) (mode
 	if err != nil {
 		return resp, errors.New("user not found")
 	}
+
+	log.Printf("Input password: %s", req.Password)
+	log.Printf("Stored hash length: %d", len(userDetail.Password))
+	log.Printf("Hash starts with: %s", userDetail.Password[:10])
 
 	err = bcrypt.CompareHashAndPassword([]byte(userDetail.Password), []byte(req.Password))
 	if err != nil {
