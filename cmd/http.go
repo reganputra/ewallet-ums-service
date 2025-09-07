@@ -51,7 +51,7 @@ type Dependency struct {
 	LogoutAPI       interfaces.ILogoutHandler
 	RefreshTokenAPI interfaces.IRefreshTokenHandler
 
-	TokenValidationAPI *api.TokenValidationHandler
+	TokenValidationAPI api.TokenValidationHandler
 }
 
 func InitializeDependencies() Dependency {
@@ -104,6 +104,6 @@ func InitializeDependencies() Dependency {
 		LoginAPI:           loginApi,
 		LogoutAPI:          logoutApi,
 		RefreshTokenAPI:    refreshTokenApi,
-		TokenValidationAPI: tokenValidationApi,
+		TokenValidationAPI: *tokenValidationApi,
 	}
 }
