@@ -45,6 +45,7 @@ func (s *TokenValidationHandler) ValidateToken(ctx context.Context, req *tokenVa
 			UserId:   int64(claimToken.UserID),
 			Username: claimToken.Username,
 			FullName: claimToken.FullName,
+			Email:    claimToken.Email,
 		},
 	}, nil
 }

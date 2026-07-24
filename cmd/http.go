@@ -60,11 +60,11 @@ func InitializeDependencies() Dependency {
 		DB: helpers.DB,
 	}
 
-	extWallet := &external.ExtWallet{}
+	ext := &external.External{}
 
 	registerSvc := &service.RegisterService{
-		UserRepo:       userRepo,
-		ExternalWallet: extWallet,
+		UserRepo: userRepo,
+		External: ext,
 	}
 	registerApi := &api.RegisterHandler{
 		RegisterService: registerSvc,
