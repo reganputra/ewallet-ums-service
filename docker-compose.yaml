@@ -10,6 +10,36 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    image: ewallet-ums:1.0
+    container_name: ums-service-app
+    restart: unless-stopped
+    environment:
+      APP_NAME: "ewallet-ums"
+      APP_SECRET: "myscrttt"
+      PORT: "8080"
+      GRPC_PORT: "7000"
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: ums-service-db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      WALLET_HOST: http://host.docker.internal:8081
+      WALLET_ENDPOINT_CREATE: /wallet/v1
+      NOTIFICATION_GRPC_HOST: host.docker.internal:7005
+    ports:
+      - "8080:8080"
+      - "7000:7000"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   db_data:
